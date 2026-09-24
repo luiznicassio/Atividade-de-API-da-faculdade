@@ -11,7 +11,7 @@ const app = express();
 //Rotas 
     //Retorna a lista completa de tarefas
     app.get('/tarefas',(req,res)=>{
-        res.send('servidor rodando em 3333')
+        res.send('servidor rodando em :http://localhost:3333/')
     })
     //Retorna uma única tarefa pelo id
     app.get('/tarefas:id',(req,res)=>{
