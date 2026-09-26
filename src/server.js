@@ -146,7 +146,7 @@ const databases = [{
 
 
 // Iniciando o servidor
-    const PORT = process.env.PORT || 3333;
+    const PORT = process.env.PORT || 3000;
     app.listen(PORT,()=>{
-        console.log("servidor rodando em :http://localhost:3333/")
+        console.log("servidor rodando em :http://localhost:3000")
     })
