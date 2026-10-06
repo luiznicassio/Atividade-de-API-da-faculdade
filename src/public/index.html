@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tarefas</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+            color: #1e293b;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        header {
+            margin-bottom: 28px;
+        }
+
+        h1 {
+            font-size: 38px;
+            margin-bottom: 7px;
+        }
+
+        header p {
+            color: #64748b;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, .08);
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 13px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: #6366f1;
+        }
+
+        button {
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .add {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .count {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 17px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .task:last-child {
+            border-bottom: 0;
+        }
+
+        .info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .check {
+            width: 20px;
+            height: 20px;
+        }
+
+        .title {
+            word-break: break-word;
+        }
+
+        .done {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+        }
+
+        .edit {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .delete {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .empty {
+            text-align: center;
+            color: #94a3b8;
+            padding: 28px;
+        }
+
+        .msg {
+            display: none;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+        }
+
+        .success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .5);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .modal-box h2 {
+            margin-bottom: 18px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .field input {
+            width: 100%;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .cancel {
+            background: #e2e8f0;
+        }
+
+        .save {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 25px 12px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+
+            form {
+                flex-direction: column;
+            }
+
+            .task {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .actions {
+                width: 100%;
+            }
+
+            .actions button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>✓ Minhas Tarefas</h1>
+            <p>Uma interface simples para sua Tarefas API.</p>
+        </header>
+
+        <div id="msg" class="msg"></div>
+
+        <div class="card">
+
+            <form id="form">
+
+                <input
+                    id="titulo"
+                    type="text"
+                    placeholder="Digite uma nova tarefa..."
+                    required
+                >
+
+                <button class="add">
+                    + Adicionar
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <div class="top">
+
+                <h2>Minhas tarefas</h2>
+
+                <span id="count" class="count">
+                    0 tarefas
+                </span>
+
+            </div>
+
+            <div id="lista"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Modal de edição -->
+    <div id="modal" class="modal">
+
+        <div class="modal-box">
+
+            <h2>Editar tarefa</h2>
+
+            <div class="field">
+
+                <label for="editTitulo">
+                    Título
+                </label>
+
+                <input
+                    id="editTitulo"
+                    type="text"
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label>
+                    <input
+                        id="editConcluida"
+                        type="checkbox"
+                    >
+
+                    Tarefa concluída
+                </label>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    class="cancel"
+                    onclick="fecharModal()"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    class="save"
+                    onclick="salvarEdicao()"
+                >
+                    Salvar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // URL da sua API
+        const API = 'http://localhost:3333/tarefas';
+
+        let tarefas = [];
+        let editando = null;
+
+
+        const $ = id => document.getElementById(id);
+
+
+        // Mostra mensagem na tela
+        function mensagem(texto, erro = false) {
+
+            $('msg').textContent = texto;
+
+            $('msg').className =
+                'msg ' + (erro ? 'error' : 'success');
+
+            setTimeout(() => {
+                $('msg').className = 'msg';
+            }, 3000);
+        }
+
+
+        // Evita problemas ao mostrar o título no HTML
+        function escapar(texto) {
+
+            const d = document.createElement('div');
+
+            d.textContent = texto;
+
+            return d.innerHTML;
+        }
+
+
+        // Busca todas as tarefas
+        async function carregar() {
+
+            try {
+
+                const r = await fetch(API);
+
+                if (!r.ok) {
+                    throw Error();
+                }
+
+                tarefas = await r.json();
+
+                render();
+
+            } catch (e) {
+
+                mensagem(
+                    'Não foi possível conectar com a API.',
+                    true
+                );
+            }
+        }
+
+
+        // Mostra as tarefas na tela
+        function render() {
+
+            $('count').textContent =
+                `${tarefas.length} ${
+                    tarefas.length === 1
+                        ? 'tarefa'
+                        : 'tarefas'
+                }`;
+
+
+            if (!tarefas.length) {
+
+                $('lista').innerHTML =
+                    '<div class="empty">Nenhuma tarefa cadastrada.</div>';
+
+                return;
+            }
+
+
+            $('lista').innerHTML = tarefas
+                .map(t => `
+
+                    <div class="task">
+
+                        <div class="info">
+
+                            <input
+                                class="check"
+                                type="checkbox"
+                                ${t.concluida ? 'checked' : ''}
+                                onchange="concluir(${t.id}, this.checked)"
+                            >
+
+                            <span class="title ${t.concluida ? 'done' : ''}">
+                                ${escapar(t.titulo)}
+                            </span>
+
+                        </div>
+
+
+                        <div class="actions">
+
+                            <button
+                                class="edit"
+                                onclick="abrir(${t.id})"
+                            >
+                                Editar
+                            </button>
+
+                            <button
+                                class="delete"
+                                onclick="excluir(${t.id})"
+                            >
+                                Excluir
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                `)
+                .join('');
+        }
+
+
+        // Adiciona uma nova tarefa
+        $('form').addEventListener('submit', async e => {
+
+            e.preventDefault();
+
+            const titulo = $('titulo').value.trim();
+
+            if (!titulo) {
+                return;
+            }
+
+
+            try {
+
+                const r = await fetch(API, {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        titulo
+                    })
+
+                });
+
+
+                if (!r.ok) {
+
+                    const d = await r.json();
+
+                    throw Error(
+                        d.message || d.error
+                    );
+                }
+
+
+                $('titulo').value = '';
+
+                mensagem(
+                    'Tarefa criada com sucesso!'
+                );
+
+                carregar();
+
+            } catch (e) {
+
+                mensagem(
+                    e.message,
+                    true
+                );
+            }
+        });
+
+
+        // Abre o modal de edição
+        function abrir(id) {
+
+            editando =
+                tarefas.find(t => t.id === id);
+
+
+            if (!editando) {
+                return;
+            }
+
+
+            $('editTitulo').value =
+                editando.titulo;
+
+            $('editConcluida').checked =
+                editando.concluida;
+
+            $('modal').classList.add('show');
+        }
+
+
+        // Fecha o modal
+        function fecharModal() {
+
+            $('modal').classList.remove('show');
+
+            editando = null;
+        }
+
+
+        // Salva a edição
+        async function salvarEdicao() {
+
+            if (!editando) {
+                return;
+            }
+
+
+            const titulo =
+                $('editTitulo').value.trim();
+
+            const concluida =
+                $('editConcluida').checked;
+
+
+            if (!titulo) {
+
+                mensagem(
+                    'O título é obrigatório.',
+                    true
+                );
+
+                return;
+            }
+
+
+            try {
+
+                const r = await fetch(
+                    `${API}/${editando.id}`,
+                    {
+                        method: 'PUT',
+
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            titulo,
+                            concluida
+                        })
+                    }
+                );
+
+
+                if (!r.ok) {
+
+                    const d = await r.json();
+
+                    throw Error(
+                        d.message || d.erro
+                    );
+                }
+
+
+                fecharModal();
+
+                mensagem(
+                    'Tarefa atualizada!'
+                );
+
+                carregar();
+
+            } catch (e) {
+
+                mensagem(
+                    e.message,
+                    true
+                );
+            }
+        }
+
+
+        // Altera somente o status da tarefa
+        async function concluir(id, concluida) {
+
+            const t =
+                tarefas.find(x => x.id === id);
+
+
+            try {
+
+                const r = await fetch(
+                    `${API}/${id}`,
+                    {
+                        method: 'PUT',
+
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            titulo: t.titulo,
+                            concluida
+                        })
+                    }
+                );
+
+
+                if (!r.ok) {
+                    throw Error();
+                }
+
+
+                carregar();
+
+            } catch (e) {
+
+                mensagem(
+                    'Erro ao atualizar tarefa.',
+                    true
+                );
+
+                carregar();
+            }
+        }
+
+
+        // Exclui uma tarefa
+        async function excluir(id) {
+
+            if (!confirm('Deseja excluir esta tarefa?')) {
+                return;
+            }
+
+
+            try {
+
+                const r = await fetch(
+                    `${API}/${id}`,
+                    {
+                        method: 'DELETE'
+                    }
+                );
+
+
+                if (r.status === 404) {
+
+                    throw Error(
+                        'Tarefa não encontrada.'
+                    );
+                }
+
+
+                if (!r.ok && r.status !== 204) {
+
+                    throw Error(
+                        'Erro ao excluir.'
+                    );
+                }
+
+
+                mensagem(
+                    'Tarefa excluída!'
+                );
+
+                carregar();
+
+            } catch (e) {
+
+                mensagem(
+                    e.message,
+                    true
+                );
+            }
+        }
+
+
+        // Carrega as tarefas quando a página abre
+        carregar();
+
+    </script>
+
+</body>
+
+</html>
